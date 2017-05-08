@@ -1,2 +1,4 @@
 # variadic_typelist
-Loki TypeList use variadic template
+<< Modern C++ Design >> reimplemented
+
+Variadic template!!!
