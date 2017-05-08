@@ -64,6 +64,7 @@ namespace TL
     {
     private:
         enum {index = IndexOf<TypeList<Tail...>, T>::value};
+        
     public:
         enum {value = index == -1 ? -1 : index + 1};
     };
@@ -136,6 +137,7 @@ namespace TL
     private:
         typedef typename RemoveDuplicates<TypeList<Tail...> >::type dup;
         typedef typename Erase<dup, Head>::type nodup;
+        
     public:
         typedef TypeList<Head, nodup> type;
     };
