@@ -3,5 +3,5 @@ project(TypeList)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp TypeList.h)
+set(SOURCE_FILES main.cpp TypeList.h HierarchyGenerator.h)
 add_executable(TypeList ${SOURCE_FILES})

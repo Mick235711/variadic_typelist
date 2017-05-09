@@ -1,12 +1,15 @@
 #ifndef TYPELIST_H
 #define TYPELIST_H
 
+// TypeList implemented in variadic templates
+
 namespace TL
 {
     template<typename T, typename... U>
     struct TypeList
     {
         typedef T Head;
+        typedef TypeList<U...> Tail;
     };
     
     struct NullType;
