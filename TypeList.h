@@ -3,6 +3,8 @@
 
 // TypeList implemented in variadic templates
 
+#include "TypeManip.h"
+
 namespace TL
 {
     template<typename T, typename... U>
@@ -179,49 +181,11 @@ namespace TL
         typedef TypeList<Head, typename ReplaceAll<TypeList<Tail...>, T, U>::type > type;
     };
     
-    template<typename T, typename U>
-    class Conversion
-    {
-        typedef char Small;
-        class Big {char dummy[2];};
-        static Small Test(U);
-        static Big Test(...);
-        static T MakeT();
-
-    public:
-        enum {exists = sizeof(Test(MakeT())) == sizeof(Small)};
-        enum {exists2Way = exists && Conversion<U, T>::exists};
-        enum {sameType = false};
-    };
-    template<typename T>
-    class Conversion<T, T>
-    {
-    public:
-        enum {exists = 1};
-        enum {exists2Way = 1};
-        enum {sameType = 1};
-    };
-
-#define SUPERSUBCLASS(T, U) \
-    (Conversion<const U*, const T*>::exists && \
-    !Conversion<const T*, const void*>::sameType)
-
-    template<bool choose, typename T, typename U>
-    struct Selector
-    {
-        typedef T type;
-    };
-    template<typename T, typename U>
-    struct Selector<false, T, U>
-    {
-        typedef U type;
-    };
-    
     template<typename TList, typename Base> struct MostDerived;
     template<typename Head, typename Base>
     struct MostDerived<TypeList<Head>, Base>
     {
-        typedef typename Selector<SUPERSUBCLASS(Base, Head), Head, Base>::type type;
+        typedef typename Select<SUPERSUBCLASS(Base, Head), Head, Base>::type type;
     };
     template<typename Head, typename... Tail, typename Base>
     struct MostDerived<TypeList<Head, Tail...>, Base>
@@ -230,7 +194,7 @@ namespace TL
         typedef typename MostDerived<TypeList<Tail...>, Base>::type mostdev;
         
     public:
-        typedef typename Selector<SUPERSUBCLASS(mostdev, Head), Head, mostdev>::type type;
+        typedef typename Select<SUPERSUBCLASS(mostdev, Head), Head, mostdev>::type type;
     };
     
     template<typename TList> struct DerivedToFront;

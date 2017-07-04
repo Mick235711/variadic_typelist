@@ -9,21 +9,19 @@ namespace TL
     // Using TypeLists to generate class hierarchy
     // technique: template template parameter
     
-    template<typename T, template<class> class Unit>
-    struct GenScatterHierarchy;
     template<typename AtomicType, template<class> class Unit>
     struct GenScatterHierarchy : public Unit<AtomicType>
     {
     };
     template<typename Head, template<class> class Unit>
-    struct GenScatterHierarchy<TypeList<Head>, Unit>
+    struct GenScatterHierarchy<TL::TypeList<Head>, Unit>
     : public GenScatterHierarchy<Head, Unit>
     {
     };
     template<typename Head, typename... Tail, template<class> class Unit>
-    struct GenScatterHierarchy<TypeList<Head, Tail...>, Unit>
+    struct GenScatterHierarchy<TL::TypeList<Head, Tail...>, Unit>
     : public GenScatterHierarchy<Head, Unit>,
-      public GenScatterHierarchy<TypeList<Tail...>, Unit>
+      public GenScatterHierarchy<TL::TypeList<Tail...>, Unit>
     {
     };
     
@@ -39,54 +37,75 @@ namespace TL
         return obj;
     };
     
-    // little utility class
-    // turn ints to types
-    template<int v>
-    struct Int2Type
-    {
-        enum {value = v};
-    };
-    
     template<typename Head, typename... Tail, template<class> class Unit>
-    Unit<Head>& FieldHelper(GenScatterHierarchy<TypeList<Head, Tail...>, Unit>& obj, Int2Type<0>)
+    Unit<Head>& FieldHelper(GenScatterHierarchy<TL::TypeList<Head, Tail...>, Unit>& obj, Int2Type<0>)
     {
         GenScatterHierarchy<Head, Unit>& leftBase = obj;
         return leftBase;
     };
     template<int i, typename Head, typename... Tail, template<class> class Unit>
-    Unit<typename TypeAt<TypeList<Head, Tail...>, i>::type>& FieldHelper(
-        GenScatterHierarchy<TypeList<Head, Tail...>, Unit>& obj,
+    Unit<typename TypeAt<TL::TypeList<Head, Tail...>, i>::type>& FieldHelper(
+        GenScatterHierarchy<TL::TypeList<Head, Tail...>, Unit>& obj,
         Int2Type<i>)
     {
-        GenScatterHierarchy<TypeList<Tail...>, Unit>& rightBase = obj;
+        GenScatterHierarchy<TL::TypeList<Tail...>, Unit>& rightBase = obj;
         return FieldHelper(rightBase, Int2Type<i - 1>());
     };
     template<typename Head, typename... Tail, template<class> class Unit>
-    const Unit<Head>& FieldHelper(const GenScatterHierarchy<TypeList<Head, Tail...>, Unit>& obj, Int2Type<0>)
+    const Unit<Head>& FieldHelper(const GenScatterHierarchy<TL::TypeList<Head, Tail...>, Unit>& obj, Int2Type<0>)
     {
         GenScatterHierarchy<Head, Unit>& leftBase = obj;
         return leftBase;
     };
     template<int i, typename Head, typename... Tail, template<class> class Unit>
-    const Unit<typename TypeAt<TypeList<Head, Tail...>, i>::type>& FieldHelper(
-        const GenScatterHierarchy<TypeList<Head, Tail...>, Unit>& obj,
+    const Unit<typename TypeAt<TL::TypeList<Head, Tail...>, i>::type>& FieldHelper(
+        const GenScatterHierarchy<TL::TypeList<Head, Tail...>, Unit>& obj,
         Int2Type<i>)
     {
-        GenScatterHierarchy<TypeList<Tail...>, Unit>& rightBase = obj;
+        GenScatterHierarchy<TL::TypeList<Tail...>, Unit>& rightBase = obj;
         return FieldHelper(rightBase, Int2Type<i - 1>());
     };
     
     template<int i, typename TList, template<class> class Unit>
-    Unit<typename TypeAt<TList, i>::type>& Field(
+    Unit<typename TL::TypeAt<TList, i>::type>& Field(
         GenScatterHierarchy<TList, Unit>& obj)
     {
         return FieldHelper(obj, Int2Type<i>());
     };
     template<int i, typename TList, template<class> class Unit>
-    const Unit<typename TypeAt<TList, i>::type>& Field(
+    const Unit<typename TL::TypeAt<TList, i>::type>& Field(
         const GenScatterHierarchy<TList, Unit>& obj)
     {
         return FieldHelper(obj, Int2Type<i>());
+    };
+    
+    template
+    <
+        typename T,
+        template<class AtomicType, class Base> class Unit,
+        typename Root = EmptyType
+    >
+    struct GenLinearHierarchy;
+    template
+    <
+        typename T1,
+        typename... T2,
+        template<class, class> class Unit,
+        typename Root
+    >
+    struct GenLinearHierarchy<TL::TypeList<T1, T2...>, Unit, Root>
+    : public Unit<T1, GenLinearHierarchy<TL::TypeList<T2...>, Unit, Root> >
+    {
+    };
+    template
+    <
+        typename T1,
+        template<class, class> class Unit,
+        typename Root
+    >
+    struct GenLinearHierarchy<TL::TypeList<T1>, Unit, Root>
+    : public Unit<T1, Root>
+    {
     };
 }
 #endif //TYPELIST_HIERARCHYGENERATOR_H
