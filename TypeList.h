@@ -7,11 +7,24 @@
 
 namespace TL
 {
-    template<typename T, typename... U>
+    template<typename... T> struct TypeList;
+    
+    namespace detail
+    {
+        template<typename... T> struct TypeListTraits;
+        template<typename H, typename... T>
+        struct TypeListTraits<H, T...>
+        {
+            typedef H Head;
+            typedef TypeList<T...> Tail;
+        };
+    } // namespace detail
+    
+    template<typename... T>
     struct TypeList
     {
-        typedef T Head;
-        typedef TypeList<U...> Tail;
+        typedef typename detail::TypeListTraits<T...>::Head Head;
+        typedef typename detail::TypeListTraits<T...>::Tail Tail;
     };
     
     struct NullType;
