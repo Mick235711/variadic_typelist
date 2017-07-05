@@ -26,6 +26,12 @@ namespace TL
         typedef typename detail::TypeListTraits<T...>::Head Head;
         typedef typename detail::TypeListTraits<T...>::Tail Tail;
     };
+    template<>
+    struct TypeList<>
+    {
+        typedef TypeList<> Head;
+        typedef TypeList<> Tail;
+    };
     
     struct NullType;
     struct EmptyType {};
@@ -93,20 +99,15 @@ namespace TL
     {
         typedef TypeList<Head, T> type;
     };
-    template<typename Head, typename Head2>
-    struct Append<TypeList<Head>, TypeList<Head2> >
+    template<typename Head, typename... T2>
+    struct Append<Head, TypeList<T2...> >
     {
-        typedef TypeList<Head, Head2> type;
+        typedef TypeList<Head, T2...> type;
     };
-    template<typename Head, typename Head2, typename... Tail2>
-    struct Append<TypeList<Head>, TypeList<Head2, Tail2...> >
+    template<typename... T1, typename... T2>
+    struct Append<TypeList<T1...>, TypeList<T2...> >
     {
-        typedef TypeList<Head, Head2, Tail2...> type;
-    };
-    template<typename Head, typename... Tail, typename T>
-    struct Append<TypeList<Head, Tail...>, T>
-    {
-        typedef TypeList<Head, typename Append<TypeList<Tail...>, T>::type> type;
+        typedef TypeList<T1..., T2...> type;
     };
     
     template<typename TList, typename T> struct Erase;
@@ -181,7 +182,7 @@ namespace TL
     template<typename Head, typename T, typename U>
     struct ReplaceAll<TypeList<Head>, T, U>
     {
-        typedef TypeList<Head> type;
+        typedef TypeList<> type;
     };
     template<typename... Tail, typename T, typename U>
     struct ReplaceAll<TypeList<T, Tail...>, T, U>
@@ -192,6 +193,18 @@ namespace TL
     struct ReplaceAll<TypeList<Head, Tail...>, T, U>
     {
         typedef TypeList<Head, typename ReplaceAll<TypeList<Tail...>, T, U>::type > type;
+    };
+    
+    template<typename TList> struct Reverse;
+    template<typename Head>
+    struct Reverse<TypeList<Head> >
+    {
+        typedef TypeList<> type;
+    };
+    template<typename Head, typename... Tail>
+    struct Reverse<TypeList<Head, Tail...> >
+    {
+        typedef typename Append<typename Reverse<TypeList<Tail...>>::type, Head>::type type;
     };
     
     template<typename TList, typename Base> struct MostDerived;
