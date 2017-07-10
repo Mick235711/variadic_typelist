@@ -94,10 +94,10 @@ namespace TL
     };
     
     template<typename TList, typename T> struct Append;
-    template<typename Head, typename T>
-    struct Append<TypeList<Head>, T>
+    template<typename... T, typename Head2>
+    struct Append<TypeList<T...>, Head2>
     {
-        typedef TypeList<Head, T> type;
+        typedef TypeList<T..., Head2> type;
     };
     template<typename Head, typename... T2>
     struct Append<Head, TypeList<T2...> >
@@ -199,7 +199,7 @@ namespace TL
     template<typename Head>
     struct Reverse<TypeList<Head> >
     {
-        typedef TypeList<> type;
+        typedef TypeList<Head> type;
     };
     template<typename Head, typename... Tail>
     struct Reverse<TypeList<Head, Tail...> >
